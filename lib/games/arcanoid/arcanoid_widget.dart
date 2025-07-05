@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'arcanoid_game.dart';
+import 'block.dart';
+import 'package:game/services/audio_manager.dart';
 
 class ArcanoidWidget extends StatefulWidget {
   final Function(int) onFishEarned;
@@ -24,6 +26,7 @@ class _ArcanoidWidgetState extends State<ArcanoidWidget> with SingleTickerProvid
   int _finalScore = 0;
   bool _showGameOverButtons = false;
   bool _showEndPanel = false;
+  final AudioManager _audioManager = AudioManager();
 
   void _handleGameOver() {
     if (_gameEnded) return;
@@ -43,6 +46,7 @@ class _ArcanoidWidgetState extends State<ArcanoidWidget> with SingleTickerProvid
         });
       }
     });
+    // widget.onGameOver();
 
   }
 
@@ -85,21 +89,37 @@ class _ArcanoidWidgetState extends State<ArcanoidWidget> with SingleTickerProvid
 
   void _restartGame() {
     setState(() {
+      // Полный сброс состояния игры
+      game.reset();
+      game.blocks.clear();
+
+      // Сброс флагов состояния виджета
+      _gameEnded = false;
+      _gameStarted = false;
+      _showEndPanel = false;
+      _showGameOverButtons = false;
+
+      // Переинициализация игры
       game = ArcanoidGame(
         onFishEarned: widget.onFishEarned,
         onGameOver: _handleGameOver,
       );
+
+      // Сброс анимации
+      _animationController.reset();
+
+      _audioManager.playBackgroundMusic(isGame: true);
+      // Запуск обратного отсчета
       _countdown = 3;
-      _gameEnded = false;
-      _gameStarted = false;
-      _showEndPanel = false;
       _startCountdown();
     });
   }
 
   @override
+  @override
   void dispose() {
     _animationController.dispose();
+    game.blocks.clear();
     super.dispose();
   }
 
@@ -107,7 +127,7 @@ class _ArcanoidWidgetState extends State<ArcanoidWidget> with SingleTickerProvid
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        // Фон игры
+        //фон игры
         Positioned.fill(
           child: Image.asset(
             'assets/images/arcanoid_background.png',
@@ -115,7 +135,7 @@ class _ArcanoidWidgetState extends State<ArcanoidWidget> with SingleTickerProvid
           ),
         ),
 
-        // Игровое поле
+        //игровое поле
         if (_gameStarted)
           LayoutBuilder(
             builder: (context, constraints) {
@@ -142,7 +162,6 @@ class _ArcanoidWidgetState extends State<ArcanoidWidget> with SingleTickerProvid
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 24,
-                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
@@ -152,7 +171,7 @@ class _ArcanoidWidgetState extends State<ArcanoidWidget> with SingleTickerProvid
             },
           ),
 
-        // Таймер перед началом
+        //таймер
         if (!_gameStarted && !_gameEnded)
           Center(
             child: Text(
@@ -160,12 +179,11 @@ class _ArcanoidWidgetState extends State<ArcanoidWidget> with SingleTickerProvid
               style: const TextStyle(
                 fontSize: 100,
                 color: Colors.white,
-                fontWeight: FontWeight.bold,
               ),
             ),
           ),
 
-        // Экран завершения игры
+        //завершение игры
         if (_gameEnded)
           AnimatedOpacity(
             duration: const Duration(milliseconds: 300),
@@ -180,8 +198,8 @@ class _ArcanoidWidgetState extends State<ArcanoidWidget> with SingleTickerProvid
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text(
-                      'Игра завершена!',
+                    Text(
+    (game.score >= Block.fishBlocksCount) ? 'Победа!' : 'Игра завершена :(',
                       style: TextStyle(
                         fontSize: 28,
                         color: Colors.white,
@@ -208,8 +226,10 @@ class _ArcanoidWidgetState extends State<ArcanoidWidget> with SingleTickerProvid
                         const SizedBox(width: 20),
                         _buildActionButton(
                           'Выйти',
-                          Colors.blueAccent,
-                              () => Navigator.of(context).pop(),
+                            Colors.blueAccent,
+                                () {
+                                  widget.onGameOver();
+                                }
                         ),
                       ],
                     ),
@@ -231,7 +251,10 @@ class _ArcanoidWidgetState extends State<ArcanoidWidget> with SingleTickerProvid
       ),
       child: Text(
         text,
-        style: const TextStyle(fontSize: 18),
+        style: const TextStyle(
+          fontSize: 18,
+          color: Colors.white,
+        ),
       ),
     );
   }

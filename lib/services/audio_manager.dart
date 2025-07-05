@@ -1,4 +1,3 @@
-
 import 'package:audioplayers/audioplayers.dart';
 import 'package:vibration/vibration.dart';
 import 'package:flutter/widgets.dart';
@@ -9,31 +8,73 @@ class AudioManager {
   final AudioPlayer _sfxPlayer = AudioPlayer();
   bool _isPlaying = false;
   String? _currentTrack;
+  bool globalMusicShutdown=false;
 
   String? get currentTrack => _currentTrack;
 
   factory AudioManager() => _instance;
+
+  AudioManager._internal();
+
   void handleAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.paused || state == AppLifecycleState.detached) {
       stopBackgroundMusic();
     }
   }
 
-  AudioManager._internal();
+  Future<void> toggleMusic() async {
+    globalMusicShutdown = !globalMusicShutdown;
 
-  Future<void> playBackgroundMusic({bool isNight = false}) async {
-    final track = isNight ?
-    'audio/background_music_night.mp3' : 'audio/background_music.mp3';
+    if (!globalMusicShutdown) {
+      //определяем текущий тип музыки
+      final isNightMode = _currentTrack == 'audio/background_music_night.mp3';
+      final isGameMode = _currentTrack == 'audio/arkanoid_background.mp3';
 
-    if (_currentTrack == track && _isPlaying) return;
+      await playBackgroundMusic(
+        isNight: isNightMode,
+        isGame: isGameMode,
+      );
+    } else {
+      await stopBackgroundMusic();
+    }
+  }
 
-    await _player.stop();
-    await _player.setReleaseMode(ReleaseMode.loop); //зацикливание
-    await _player.setVolume(0.3);
-    await _player.play(AssetSource(track));
+  Future<void> playBackgroundMusic({bool isNight = false, bool isGame = false}) async {
+    if (globalMusicShutdown) return;
 
-    _currentTrack = track;
-    _isPlaying = true;
+    final track = isGame
+        ? 'audio/arkanoid_background.mp3'
+        : (isNight
+        ? 'audio/background_music_night.mp3'
+        : 'audio/background_music.mp3');
+
+    if (_isPlaying && _currentTrack == track) return;
+
+    await stopBackgroundMusic();
+
+    try {
+      await _player.setReleaseMode(ReleaseMode.loop);
+      await _player.setVolume(0.3);
+      await _player.play(AssetSource(track));
+
+      _isPlaying = true;
+      _currentTrack = track;
+    } catch (e) {
+      print('Ошибка запуска музыки: $e');
+    }
+  }
+
+  Future<void> stopBackgroundMusic() async {
+    if (!_isPlaying) return;
+
+    try {
+      await _player.stop();
+    } catch (e) {
+      print('Ошибка остановки фоновой музыки: $e');
+    } finally {
+      _isPlaying = false;
+      _currentTrack = null;
+    }
   }
 
   Future<void> playSfx(String assetPath) async {
@@ -42,23 +83,26 @@ class AudioManager {
       await _sfxPlayer.setVolume(1.0);
       await _sfxPlayer.play(AssetSource(assetPath));
     } catch (e) {
-      print('Ошибка SFХ: $e');
+      print('Ошибка воспроизведения SFX: $e');
     }
   }
 
-  Future<void> stopBackgroundMusic() async {
-    await _player.stop();
-    _isPlaying = false;
-    _currentTrack = null;
-  }
-
   Future<void> setVolume(double volume) async {
-    await _player.setVolume(volume);
+    try {
+      await _player.setVolume(volume);
+    } catch (e) {
+      print('Ошибка установки громкости: $e');
+    }
   }
 
   Future<void> dispose() async {
-    await _player.stop();
-    await _player.dispose();
-    await Vibration.cancel();
+    try {
+      await stopBackgroundMusic();
+      await _player.dispose();
+      await _sfxPlayer.dispose();
+      await Vibration.cancel();
+    } catch (e) {
+      print('Ошибка dispose в AudioManager: $e');
+    }
   }
 }
