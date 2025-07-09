@@ -111,5 +111,4 @@ class FlappyGame extends FlameGame with TapDetector, HasCollisionDetection {
   pauseEngine();
   _spawner.cancel(); 
 }
-
 }

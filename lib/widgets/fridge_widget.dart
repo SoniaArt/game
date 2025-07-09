@@ -20,7 +20,6 @@ class FridgeWidget extends StatelessWidget {
     return Center(
       child: Stack(
         children: [
-          //затемнение фона
           Positioned.fill(
             child: GestureDetector(
               onTap: onClose,
@@ -30,7 +29,6 @@ class FridgeWidget extends StatelessWidget {
             ),
           ),
 
-          // Холодильник
           Center(
             child: Stack(
               children: [
@@ -51,7 +49,6 @@ class FridgeWidget extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: Color.fromRGBO(116, 77, 67, 0.5),
                         borderRadius: BorderRadius.circular(8),
-
                       ),
                       child: Text(
                         'Рыба: $fishCount',

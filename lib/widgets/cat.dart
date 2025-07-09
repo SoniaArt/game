@@ -5,7 +5,7 @@ class CatWidget extends StatefulWidget {
   final Function(TapDownDetails)? onTapDown;
   final bool isSleeping;
   final VoidCallback? onRunCompleted;
-  final String currentSkin; // добавьте эту строку
+  final String currentSkin; 
 
   const CatWidget({
     super.key,

@@ -17,7 +17,6 @@ class SkinSelector extends StatelessWidget {
     return Center(
       child: Stack(
         children: [
-          // Затемнение фона
           Positioned.fill(
             child: GestureDetector(
               onTap: onClose,
@@ -27,11 +26,10 @@ class SkinSelector extends StatelessWidget {
             ),
           ),
 
-          // Основное окно выбора (уменьшенные размеры)
           Center(
             child: Container(
-              width: 400,  // Было 500
-              height: 400, // Было 550
+              width: 400,  
+              height: 400, 
               decoration: BoxDecoration(
                 color: Colors.black26,
                 borderRadius: BorderRadius.circular(20),
@@ -49,11 +47,11 @@ class SkinSelector extends StatelessWidget {
                         return GestureDetector(
                           onTap: () => onSkinSelected(skins[index]),
                           child: Padding(
-                            padding: const EdgeInsets.all(4.0), // Уменьшенный отступ
+                            padding: const EdgeInsets.all(4.0), 
                             child: Image.asset(
                               'assets/images/catIsSitting${skins[index]}.png',
-                              width: 80,  // Было 100
-                              height: 80, // Было 100
+                              width: 80,  
+                              height: 80,
                             ),
                           ),
                         );

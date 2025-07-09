@@ -18,8 +18,6 @@ Future<void> onLoad() async {
     while (gameRef.size.y == 0) {
       await Future.delayed(const Duration(milliseconds: 16));
     }
-
-    size = gameRef.size.clone();
     
   size = Vector2(gameRef.size.x, gameRef.size.y);
   position.x = gameRef.size.x;

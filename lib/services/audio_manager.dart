@@ -56,7 +56,7 @@ class AudioManager {
     if (isPlaying && _currentTrack == track) return;
 
     await stopBackgroundMusic();
-
+    
     try {
       await _player.setReleaseMode(ReleaseMode.loop);
       await _player.setVolume(0.3);

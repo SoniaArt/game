@@ -21,7 +21,7 @@ class TamagotchiScreen extends StatefulWidget {
 }
 
 class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBindingObserver {
-  late Box catStateBox; //добавляем Box для хранения состояния
+  late Box catStateBox;
   final AudioManager _audioManager = AudioManager();
   bool _isCatSleeping = false;
   bool _showFridge = false;
@@ -32,8 +32,7 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
   bool _showBackgroundSelection = false;
   bool _showSkinSelection = false;
   bool _showGameSelector = false;
-  bool _showArcanoidGame = false;
-  bool _showFlappyGame = false;
+
   late CatState _catState;
   Timer? _stateTimer;
   final Map<String, double> _lastDisplayedValues = {
@@ -77,7 +76,7 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
       _catState.isSleeping = true;
       _catState.sleepProgress = 0;
       _isCatSleeping = true;
-      _audioManager.playBackgroundMusic(isNight: true); // Добавлено
+      _audioManager.playBackgroundMusic(isNight: true); 
       _saveCatState();
     });
   }
@@ -108,7 +107,7 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
         sleep: 100,
         game: 100,
         lastUpdated: DateTime.now(),
-        fishCount: 3, //начальное количество рыбок
+        fishCount: 3, 
       );
     }
   }
@@ -362,21 +361,6 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
     });
   }
 
-  void _catchFish() {
-    setState(() {
-      _catState.fishCount++;
-    });
-
-    _audioManager.playSfx('audio/fishing_success.mp3');
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Вы поймали рыбку! Всего рыб: ${_catState.fishCount}'),
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
 
@@ -389,7 +373,6 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
           }
         },
         child: Stack(
-
           children: [
             if (_showBackground)
               Positioned.fill(
@@ -413,7 +396,7 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
                 onPressed: () async {
                   _audioManager.playSfx('assets/audio/tap.mp3');
                   await _audioManager.toggleMusic();
-                  setState(() {}); //обновляем UI
+                  setState(() {}); 
                 },
               ),
             ),
@@ -465,7 +448,7 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
               ),
             ),
 
-            if (!_showSkinSelection)
+            if (!_showSkinSelection && _currentBackground=='assets/images/background1.png')
               Positioned(
                 right: 80,
                 top: 90,
@@ -518,19 +501,7 @@ class _TamagotchiScreenState extends State<TamagotchiScreen> with WidgetsBinding
                 onClose: _closeGameSelector,
                 onGameSelected: _startGame,
               ),
-
-            // if (_showArcanoidGame)
-            //   ArcanoidWidget(
-            //     onFishEarned: _earnFishFromGame,
-            //     onGameOver: _endArcanoidGame,
-            //   ),
-            //   if (_showFlappyGame)
-            //   ArcanoidWidget(
-            //     onFishEarned: _earnFishFromGame,
-            //     onGameOver: _endFlappyGame,
-            //   )
           ],
-
         ),
       ),
     );
